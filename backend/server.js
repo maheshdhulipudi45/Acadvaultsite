@@ -6,7 +6,7 @@ const connectDB = require('./config/db');
 const bcrypt = require('bcryptjs');
 
 // Load env vars
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Connect to Database
 connectDB();

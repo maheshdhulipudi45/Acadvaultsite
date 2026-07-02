@@ -57,19 +57,20 @@ const Leaderboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end pt-4">
           
           {/* Rank 2 Podium */}
+          {/* Rank 2 Podium */}
           {users[1] && (
             <div className="order-2 md:order-1 flex flex-col items-center rounded-2xl border border-slate-100 bg-white p-6 text-center shadow-premium relative md:h-44 justify-center hover:-translate-y-1 transition-transform">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full border border-slate-200 bg-slate-100 text-slate-700 text-xs font-bold shadow-sm">
                 Rank #2
               </span>
               <div className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-700 font-extrabold flex items-center justify-center text-lg shadow-sm border border-slate-100">
-                {users[1].name.charAt(0).toUpperCase()}
+                {users[1].name ? users[1].name.charAt(0).toUpperCase() : 'U'}
               </div>
-              <h4 className="font-bold text-sm text-slate-800 mt-3">{users[1].name}</h4>
+              <h4 className="font-bold text-sm text-slate-800 mt-3">{users[1].name || 'Contributor'}</h4>
               <span className="text-[10px] text-slate-400 font-medium">{users[1].college || 'Colleague Campus'}</span>
               <div className="flex items-center gap-1 text-xs text-brand-600 font-bold mt-2">
                 <TrendingUp className="h-3.5 w-3.5" />
-                <span>{users[1].points} pts</span>
+                <span>{users[1].points || 0} pts</span>
               </div>
             </div>
           )}
@@ -81,13 +82,13 @@ const Leaderboard = () => {
                 <Trophy className="h-3 w-3 fill-current" /> Champion #1
               </span>
               <div className="h-16 w-16 rounded-2xl bg-amber-100 text-amber-700 font-extrabold flex items-center justify-center text-2xl shadow-sm border border-amber-200">
-                {users[0].name.charAt(0).toUpperCase()}
+                {users[0].name ? users[0].name.charAt(0).toUpperCase() : 'U'}
               </div>
-              <h4 className="font-extrabold text-base text-slate-800 mt-4">{users[0].name}</h4>
+              <h4 className="font-extrabold text-base text-slate-800 mt-4">{users[0].name || 'Contributor'}</h4>
               <span className="text-[10px] text-slate-500 font-semibold">{users[0].college || 'Colleague Campus'}</span>
               <div className="flex items-center gap-1 text-sm text-amber-600 font-extrabold mt-3">
                 <Sparkles className="h-4 w-4 text-amber-500" />
-                <span>{users[0].points} pts</span>
+                <span>{users[0].points || 0} pts</span>
               </div>
             </div>
           )}
@@ -99,13 +100,13 @@ const Leaderboard = () => {
                 Rank #3
               </span>
               <div className="h-11 w-11 rounded-2xl bg-orange-50 text-orange-700 font-extrabold flex items-center justify-center text-base shadow-sm border border-orange-100">
-                {users[2].name.charAt(0).toUpperCase()}
+                {users[2].name ? users[2].name.charAt(0).toUpperCase() : 'U'}
               </div>
-              <h4 className="font-bold text-sm text-slate-800 mt-3">{users[2].name}</h4>
+              <h4 className="font-bold text-sm text-slate-800 mt-3">{users[2].name || 'Contributor'}</h4>
               <span className="text-[10px] text-slate-400 font-medium">{users[2].college || 'Colleague Campus'}</span>
               <div className="flex items-center gap-1 text-xs text-brand-600 font-bold mt-2">
                 <TrendingUp className="h-3.5 w-3.5" />
-                <span>{users[2].points} pts</span>
+                <span>{users[2].points || 0} pts</span>
               </div>
             </div>
           )}
@@ -148,7 +149,7 @@ const Leaderboard = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50 text-brand-650 font-bold text-xs">
-                          {item.name.charAt(0).toUpperCase()}
+                          {item.name ? item.name.charAt(0).toUpperCase() : 'U'}
                         </div>
                         <span className="font-semibold text-slate-800">{item.name}</span>
                       </div>

@@ -119,7 +119,7 @@ const Profile = () => {
         <div className="flex flex-col md:flex-row gap-6 items-center">
           <div className="relative">
             <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-brand-600 to-accent-500 text-white font-extrabold text-3xl shadow-lg shadow-brand-100">
-              {user.name.charAt(0).toUpperCase()}
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
             <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500 text-white shadow ring-2 ring-white">
               <Award className="h-4.5 w-4.5" />

@@ -422,7 +422,7 @@ const Home = () => {
               >
                 <div className="relative">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand-100 to-brand-50 text-brand-700 font-extrabold text-xl shadow-sm">
-                    {contributor.name.charAt(0).toUpperCase()}
+                    {contributor.name ? contributor.name.charAt(0).toUpperCase() : 'U'}
                   </div>
                   <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white shadow-sm ring-2 ring-white">
                     #{i + 1}

@@ -218,7 +218,7 @@ const Navbar = () => {
                     />
                   ) : (
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-brand-700 font-bold text-xs">
-                      {user.name.charAt(0).toUpperCase()}
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </div>
                   )}
                   <span className="text-sm font-semibold text-slate-700">

@@ -323,7 +323,7 @@ const Admin = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <div className="flex h-7 w-7 items-center justify-center rounded bg-brand-50 text-brand-700 text-xs font-bold">
-                            {usr.name.charAt(0).toUpperCase()}
+                            {usr.name ? usr.name.charAt(0).toUpperCase() : 'U'}
                           </div>
                           <span className="font-semibold text-slate-800">{usr.name}</span>
                           {usr.role === 'admin' && (
