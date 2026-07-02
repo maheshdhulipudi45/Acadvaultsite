@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
-  const uri = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI || 'mongodb+srv://maheshdhulipudi45_db_user:QCLmNKI7IMZPdrXY@cluster0.wwavi3s.mongodb.net/acadvault?retryWrites=true&w=majority';
   if (!uri) {
     console.error("Error: MONGODB_URI environment variable is missing.");
     process.exit(1);
