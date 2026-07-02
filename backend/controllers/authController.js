@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 
 const generateToken = (id) => {
@@ -20,8 +21,16 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Please provide all required fields (name, email, password)' });
     }
 
+    if (mongoose.connection.readyState !== 1) {
+      console.error('❌ Database connection is not active. readyState:', mongoose.connection.readyState);
+      return res.status(500).json({
+        message: 'Database connection is not active.',
+        error: 'The server is currently unable to communicate with the database. Please verify your MongoDB Atlas cluster whitelisting (Network Access) and environment variables.'
+      });
+    }
+
     // Check if user exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: email.toLowerCase().trim() });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -75,8 +84,16 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Please provide email and password' });
     }
 
+    if (mongoose.connection.readyState !== 1) {
+      console.error('❌ Database connection is not active. readyState:', mongoose.connection.readyState);
+      return res.status(500).json({
+        message: 'Database connection is not active.',
+        error: 'The server is currently unable to communicate with the database. Please verify your MongoDB Atlas cluster whitelisting (Network Access) and environment variables.'
+      });
+    }
+
     // Check for user email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
