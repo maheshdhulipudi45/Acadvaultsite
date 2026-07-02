@@ -32,7 +32,7 @@ const registerUser = async (req, res) => {
     // Check if user exists
     const userExists = await User.findOne({ email: email.toLowerCase().trim() });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'Registration failed. An account with this email address already exists.' });
     }
 
     // Hash password
@@ -95,34 +95,36 @@ const loginUser = async (req, res) => {
     // Check for user email
     const user = await User.findOne({ email: email.toLowerCase().trim() });
 
-    let isMatch = false;
-    if (user) {
-      try {
-        isMatch = await bcrypt.compare(password, user.password);
-      } catch (bcryptError) {
-        console.warn('⚠️ Bcrypt comparison failed (likely invalid hash format in DB):', bcryptError.message);
-        // Fallback: check if password matches plain text
-        isMatch = (password === user.password);
-      }
+    if (!user) {
+      return res.status(401).json({ message: 'Login failed. User with this email address was not found.' });
     }
 
-    if (user && isMatch) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        college: user.college,
-        branch: user.branch,
-        year: user.year,
-        semester: user.semester,
-        points: user.points,
-        badge: user.badge,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+    let isMatch = false;
+    try {
+      isMatch = await bcrypt.compare(password, user.password);
+    } catch (bcryptError) {
+      console.warn('⚠️ Bcrypt comparison failed (likely invalid hash format in DB):', bcryptError.message);
+      // Fallback: check if password matches plain text
+      isMatch = (password === user.password);
     }
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Login failed. The password you entered is incorrect.' });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      college: user.college,
+      branch: user.branch,
+      year: user.year,
+      semester: user.semester,
+      points: user.points,
+      badge: user.badge,
+      token: generateToken(user._id),
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error during login', error: error.message });
