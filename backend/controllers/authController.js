@@ -95,7 +95,18 @@ const loginUser = async (req, res) => {
     // Check for user email
     const user = await User.findOne({ email: email.toLowerCase().trim() });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    let isMatch = false;
+    if (user) {
+      try {
+        isMatch = await bcrypt.compare(password, user.password);
+      } catch (bcryptError) {
+        console.warn('⚠️ Bcrypt comparison failed (likely invalid hash format in DB):', bcryptError.message);
+        // Fallback: check if password matches plain text
+        isMatch = (password === user.password);
+      }
+    }
+
+    if (user && isMatch) {
       res.json({
         _id: user._id,
         name: user.name,
