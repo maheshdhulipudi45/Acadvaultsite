@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'https://acadvaultsite.onrender.com/api';
 export const API_URL = rawApiUrl.replace(/\/$/, '') + (rawApiUrl.endsWith('/api') || rawApiUrl.endsWith('/api/') ? '' : '/api');
 export const SERVER_URL = API_URL.replace(/\/api\/?$/, '');
 
