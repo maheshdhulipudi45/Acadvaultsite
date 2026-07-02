@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', 'Outfit', sans-serif;
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-brand-200 selection:text-brand-900;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+/* Glassmorphism Styles */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Slick Carousel Styling Overrides for Premium Aesthetic */
+.slick-slider {
+  @apply py-6;
+}
+
+.slick-list {
+  @apply overflow-visible py-2;
+}
+
+.slick-slide {
+  @apply px-3 transition-all duration-300;
+}
+
+.slick-dots {
+  @apply -bottom-2;
+}
+
+.slick-dots li button:before {
+  @apply text-brand-400 text-xs transition-colors duration-200;
+}
+
+.slick-dots li.slick-active button:before {
+  @apply text-brand-600;
+}
+
+.slick-prev, .slick-next {
+  @apply w-10 h-10 bg-white shadow-premium rounded-full flex items-center justify-center border border-slate-100 z-10 hover:bg-slate-50 transition-all duration-200;
+}
+
+.slick-prev {
+  @apply -left-4;
+}
+
+.slick-next {
+  @apply -right-4;
+}
+
+.slick-prev:before, .slick-next:before {
+  @apply text-slate-800 text-lg font-bold;
+  content: '';
+}
+
+.slick-prev:hover, .slick-next:hover {
+  @apply bg-brand-50 border-brand-200;
+}
+
+/* Premium Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors duration-200;
+}
