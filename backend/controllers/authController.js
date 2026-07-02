@@ -131,8 +131,25 @@ const getMe = async (req, res) => {
   }
 };
 
+// @desc    Get API and Database connection status
+// @route   GET /api/auth/status
+// @access  Public
+const getStatus = async (req, res) => {
+  const status = {
+    mongooseReadyState: mongoose.connection.readyState,
+    mongooseState: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState],
+    env: {
+      hasMongodbUri: !!process.env.MONGODB_URI,
+      hasJwtSecret: !!process.env.JWT_SECRET,
+      nodeEnv: process.env.NODE_ENV,
+    }
+  };
+  res.json(status);
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
+  getStatus,
 };
