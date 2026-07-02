@@ -41,7 +41,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <div className="flex flex-col min-h-screen bg-slate-50/50">
           
           {/* Header Navigation */}
