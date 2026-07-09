@@ -42,7 +42,7 @@ function App() {
   return (
     <AuthProvider>
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <div className="flex flex-col min-h-screen bg-slate-50/50">
+        <div className="flex flex-col min-h-screen bg-slate-50/50 overflow-x-hidden">
           
           {/* Header Navigation */}
           <Navbar />

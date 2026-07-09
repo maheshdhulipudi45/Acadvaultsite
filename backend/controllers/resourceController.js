@@ -282,7 +282,7 @@ const getResources = async (req, res) => {
     // Verify first, then apply sort option (Verified resources appear higher in search)
     // We can sort primarily by isVerified (-1) if we want verified resources to always show up higher,
     // followed by the requested sort choice. This meets the requirement "Verified resources appear higher in search"
-    const finalSort = { isVerified: -1, ...sortOptions };
+    const finalSort = (search || sort === 'Verified') ? { isVerified: -1, ...sortOptions } : sortOptions;
 
     const resources = await Resource.find(query)
       .select('-file_data')
