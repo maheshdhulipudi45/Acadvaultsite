@@ -374,7 +374,7 @@ const rateResource = async (req, res) => {
       resource.ratings.push({ user: req.user._id, rating });
     }
 
-    await resource.save();
+    await resource.save({ validateBeforeSave: false });
 
     // Give rating points to uploader if average rating is solid
     if (resource.uploader && resource.averageRating >= 4.0) {
@@ -406,7 +406,7 @@ const downloadResource = async (req, res) => {
 
     // Increment downloads count on resource
     resource.downloadsCount = (resource.downloadsCount || 0) + 1;
-    await resource.save();
+    await resource.save({ validateBeforeSave: false });
 
     // Reward points: Download = +2 points to the uploader
     if (resource.uploader && resource.uploader.toString() !== req.user._id.toString()) {
