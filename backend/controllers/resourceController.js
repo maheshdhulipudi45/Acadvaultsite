@@ -359,7 +359,7 @@ const rateResource = async (req, res) => {
     }
 
     // Check if user is rating their own resource
-    if (resource.uploader.toString() === req.user._id.toString()) {
+    if (resource.uploader && resource.uploader.toString() === req.user._id.toString()) {
       return res.status(400).json({ message: 'You cannot rate your own resource' });
     }
 
@@ -377,7 +377,7 @@ const rateResource = async (req, res) => {
     await resource.save();
 
     // Give rating points to uploader if average rating is solid
-    if (resource.averageRating >= 4.0) {
+    if (resource.uploader && resource.averageRating >= 4.0) {
       await awardPoints(resource.uploader, 2);
     }
 
@@ -405,11 +405,11 @@ const downloadResource = async (req, res) => {
     });
 
     // Increment downloads count on resource
-    resource.downloadsCount += 1;
+    resource.downloadsCount = (resource.downloadsCount || 0) + 1;
     await resource.save();
 
     // Reward points: Download = +2 points to the uploader
-    if (resource.uploader.toString() !== req.user._id.toString()) {
+    if (resource.uploader && resource.uploader.toString() !== req.user._id.toString()) {
       await awardPoints(resource.uploader, 2);
     }
 
