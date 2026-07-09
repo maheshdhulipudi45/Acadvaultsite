@@ -53,8 +53,9 @@ const Navbar = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <nav className="sticky top-0 z-40 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <>
+      <nav className="sticky top-0 z-40 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
@@ -282,6 +283,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+      </nav>
 
       {/* Slide-in Mobile Drawer */}
       <AnimatePresence>
@@ -498,7 +500,7 @@ const Navbar = () => {
           </>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 };
 
