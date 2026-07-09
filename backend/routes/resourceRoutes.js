@@ -10,6 +10,7 @@ const {
   reportResource,
   getRecommendations,
   serveResourceFile,
+  deleteUserResource,
 } = require('../controllers/resourceController');
 const { protect } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
@@ -26,5 +27,6 @@ router.post('/upload', protect, upload.single('file'), uploadResource);
 router.post('/:id/rate', protect, rateResource);
 router.post('/:id/download', protect, downloadResource);
 router.post('/:id/report', protect, reportResource);
+router.delete('/:id', protect, deleteUserResource);
 
 module.exports = router;

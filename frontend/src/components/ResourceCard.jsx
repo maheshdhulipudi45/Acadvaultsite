@@ -9,6 +9,11 @@ const ResourceCard = ({ resource, onBookmarkToggle, onReportClick, onPreviewClic
 
   const isBookmarked = bookmarks.some((b) => b._id === resource._id);
 
+  const isOwner = user && (
+    (typeof resource.uploader === 'string' && resource.uploader === user._id) ||
+    (resource.uploader?._id && resource.uploader._id === user._id)
+  );
+
   // Styling helper for Resource type indicators
   const getTypeStyles = (type) => {
     switch (type) {
@@ -67,6 +72,20 @@ const ResourceCard = ({ resource, onBookmarkToggle, onReportClick, onPreviewClic
       await toggleBookmark(resource._id);
       if (onBookmarkToggle) onBookmarkToggle();
     });
+  };
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this resource? This action cannot be undone, and 10 contribution points will be deducted from your score.')) {
+      try {
+        await resourceService.deleteResource(resource._id);
+        alert('Resource deleted successfully.');
+        if (onBookmarkToggle) onBookmarkToggle();
+      } catch (err) {
+        console.error('Error deleting resource:', err);
+        alert(err.response?.data?.message || 'Failed to delete resource.');
+      }
+    }
   };
 
   const getActionBtnLabel = () => {
@@ -185,14 +204,23 @@ const ResourceCard = ({ resource, onBookmarkToggle, onReportClick, onPreviewClic
           </button>
         </div>
 
-        {/* Report link */}
+        {/* Report or Delete link */}
         <div className="flex justify-end mt-2">
-          <button
-            onClick={() => handleAuthAction(() => onReportClick && onReportClick(resource))}
-            className="flex items-center gap-1 text-[10px] font-medium text-slate-400 hover:text-red-500 transition-colors"
-          >
-            <AlertTriangle className="h-3 w-3" /> Report issue
-          </button>
+          {isOwner ? (
+            <button
+              onClick={handleDelete}
+              className="flex items-center gap-1 text-[10px] font-bold text-red-500 hover:text-red-750 transition-colors cursor-pointer"
+            >
+              <AlertTriangle className="h-3 w-3" /> Delete Upload
+            </button>
+          ) : (
+            <button
+              onClick={() => handleAuthAction(() => onReportClick && onReportClick(resource))}
+              className="flex items-center gap-1 text-[10px] font-medium text-slate-400 hover:text-red-500 transition-colors"
+            >
+              <AlertTriangle className="h-3 w-3" /> Report issue
+            </button>
+          )}
         </div>
       </div>
 

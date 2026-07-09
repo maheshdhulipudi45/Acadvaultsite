@@ -156,6 +156,7 @@ export const resourceService = {
   downloadResource: (id) => API.post(`/resources/${id}/download`),
   reportResource: (id, reportData) => API.post(`/resources/${id}/report`, reportData),
   getRecommendations: (id) => API.get(`/resources/${id}/recommendations`),
+  deleteResource: (id) => API.delete(`/resources/${id}`),
 };
 
 export const userService = {

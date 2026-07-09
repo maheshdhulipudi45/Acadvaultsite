@@ -526,6 +526,48 @@ const serveResourceFile = async (req, res) => {
   }
 };
 
+// @desc    Delete user's own resource
+// @route   DELETE /api/resources/:id
+// @access  Private
+const deleteUserResource = async (req, res) => {
+  try {
+    const resource = await Resource.findById(req.params.id);
+
+    if (!resource) {
+      return res.status(404).json({ message: 'Resource not found' });
+    }
+
+    // Check if the logged-in user is the owner (uploader) or an admin
+    if (resource.uploader.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Unauthorized. You can only delete your own uploads.' });
+    }
+
+    // If file is stored locally, delete it
+    if (resource.fileUrl && resource.fileUrl.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '..', resource.fileUrl);
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (e) {
+          console.error('Error deleting local file:', e);
+        }
+      }
+    }
+
+    // Delete resource and related records
+    await Resource.deleteOne({ _id: req.params.id });
+    await Report.deleteMany({ resource: req.params.id });
+
+    // Deduct points: Upload deletion = -10 Points
+    await awardPoints(resource.uploader, -10);
+
+    res.json({ message: 'Resource deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error deleting resource' });
+  }
+};
+
 module.exports = {
   checkDuplicate,
   uploadResource,
@@ -536,4 +578,5 @@ module.exports = {
   reportResource,
   getRecommendations,
   serveResourceFile,
+  deleteUserResource,
 };
