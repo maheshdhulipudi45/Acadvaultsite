@@ -24,6 +24,14 @@ const ResourceSchema = new mongoose.Schema({
     type: String, // Used for duplicate checking (MD5 hash)
     default: '',
   },
+  file_data: {
+    type: String, // Base64 representation of file
+    default: '',
+  },
+  file_type: {
+    type: String, // Extension / type of file
+    default: '',
+  },
   linkUrl: {
     type: String, // For external URLs (Drive, YouTube, GitHub, Website)
     default: '',

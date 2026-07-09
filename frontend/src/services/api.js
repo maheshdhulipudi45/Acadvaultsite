@@ -53,7 +53,7 @@ export const normalizeResource = (resource) => {
   const linkUrl = rest.linkUrl || (isExternalResource(resourceType) ? rawUrl : '');
 
   let fileUrl = rawUrl;
-  if (rest.file_data || rawUrl.includes('localhost')) {
+  if (rest.file_data || rawUrl.includes('localhost') || (!isExternalResource(resourceType) && rawUrl.startsWith('/uploads/'))) {
     fileUrl = `/api/resources/${rest._id}/file`;
   } else if (isExternalResource(resourceType) && rawUrl) {
     fileUrl = rawUrl;

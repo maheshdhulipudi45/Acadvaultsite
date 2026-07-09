@@ -100,10 +100,14 @@ const uploadResource = async (req, res) => {
 
     let fileUrl = '';
     let fileHash = '';
+    let file_data = '';
+    let file_type = '';
 
     // If file is uploaded, process it
     if (req.file) {
       fileUrl = `/uploads/${req.file.filename}`;
+      const fileExt = path.extname(req.file.originalname).substring(1).toLowerCase();
+      file_type = fileExt;
       try {
         fileHash = await calculateFileHash(req.file.path);
         
@@ -113,8 +117,16 @@ const uploadResource = async (req, res) => {
           fs.unlinkSync(req.file.path);
           return res.status(409).json({ message: 'Similar resource already exists (Exact same file structure).' });
         }
+
+        // Read file contents as base64 and delete local file
+        file_data = fs.readFileSync(req.file.path).toString('base64');
+        fs.unlinkSync(req.file.path);
       } catch (err) {
         console.error('Hash calculation error:', err);
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(500).json({ message: 'Error processing uploaded file', error: err.message });
       }
     } else if (linkUrl) {
       // Check link URL duplicate
@@ -150,6 +162,8 @@ const uploadResource = async (req, res) => {
       resourceType,
       fileUrl,
       fileHash,
+      file_data,
+      file_type,
       linkUrl: linkUrl || '',
       uploader: req.user._id,
       university: university || '',
