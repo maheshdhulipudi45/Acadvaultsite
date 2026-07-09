@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { resourceService, SERVER_URL } from '../services/api';
+import { resourceService, resolveResourceUrl } from '../services/api';
 import ResourceCard from '../components/ResourceCard';
 import PreviewModal from '../components/PreviewModal';
 import ReportModal from '../components/ReportModal';
@@ -65,10 +65,7 @@ const Resources = () => {
             } else if (actionParam === 'continue') {
               try {
                 await resourceService.downloadResource(matchedResource._id);
-                let targetUrl = matchedResource.fileUrl;
-                if (targetUrl && targetUrl.startsWith('/uploads/')) {
-                  targetUrl = `${SERVER_URL}${targetUrl}`;
-                }
+                let targetUrl = resolveResourceUrl(matchedResource.fileUrl);
                 window.open(targetUrl, '_blank');
               } catch (err) {
                 console.error("Auto download failed:", err);

@@ -4,6 +4,104 @@ const rawApiUrl = import.meta.env.VITE_API_URL || 'https://acadvaultsite.onrende
 export const API_URL = rawApiUrl.replace(/\/$/, '') + (rawApiUrl.endsWith('/api') || rawApiUrl.endsWith('/api/') ? '' : '/api');
 export const SERVER_URL = API_URL.replace(/\/api\/?$/, '');
 
+const LEGACY_TYPE_MAP = {
+  pdf: 'pdf',
+  ppt: 'ppt',
+  docx: 'docx',
+  zip: 'zip',
+  youtube: 'youtube',
+  drive: 'drive',
+  website: 'website',
+  github: 'github',
+  link: 'website',
+  assignments: 'pdf',
+  notes: 'pdf',
+  document: 'pdf',
+};
+
+const mapLegacyResourceType = (resource) => {
+  if (resource.resourceType) return resource.resourceType;
+
+  const candidates = [resource.resource_type, resource.file_type, resource.fileType]
+    .filter(Boolean)
+    .map((value) => value.toLowerCase());
+
+  for (const candidate of candidates) {
+    if (LEGACY_TYPE_MAP[candidate]) {
+      return LEGACY_TYPE_MAP[candidate];
+    }
+  }
+
+  const rawUrl = (resource.file_url || resource.fileUrl || '').toLowerCase();
+  if (rawUrl.includes('youtu.be') || rawUrl.includes('youtube.com')) return 'youtube';
+  if (rawUrl.includes('drive.google.com')) return 'drive';
+  if (rawUrl.includes('github.com')) return 'github';
+
+  return 'pdf';
+};
+
+const isExternalResource = (resourceType) =>
+  ['youtube', 'drive', 'website', 'github'].includes(resourceType);
+
+export const normalizeResource = (resource) => {
+  if (!resource || typeof resource !== 'object') return resource;
+
+  const rest = { ...resource };
+  delete rest.file_data;
+  const resourceType = mapLegacyResourceType(rest);
+  const rawUrl = rest.fileUrl || rest.file_url || '';
+  const linkUrl = rest.linkUrl || (isExternalResource(resourceType) ? rawUrl : '');
+
+  let fileUrl = rawUrl;
+  if (rest.file_data || rawUrl.includes('localhost')) {
+    fileUrl = `/api/resources/${rest._id}/file`;
+  } else if (isExternalResource(resourceType) && rawUrl) {
+    fileUrl = rawUrl;
+  }
+
+  return {
+    ...rest,
+    resourceType,
+    fileUrl,
+    linkUrl,
+    downloadsCount: rest.downloadsCount ?? rest.downloads ?? 0,
+    isVerified: rest.isVerified ?? rest.verified ?? false,
+    branch: rest.branch || rest.subject || rest.category || 'General',
+    semester: rest.semester || 1,
+  };
+};
+
+export const resolveResourceUrl = (url) => {
+  if (!url) return url;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${SERVER_URL}${url.startsWith('/') ? url : `/${url}`}`;
+};
+
+const normalizeResourcesPayload = (data) => {
+  if (!data) return data;
+
+  if (Array.isArray(data.resources)) {
+    return {
+      ...data,
+      resources: data.resources.map(normalizeResource),
+    };
+  }
+
+  if (data._id && (data.title || data.resourceType || data.resource_type)) {
+    return normalizeResource(data);
+  }
+
+  if (Array.isArray(data)) {
+    return data.map((item) =>
+      item?._id && (item.title || item.resourceType || item.resource_type)
+        ? normalizeResource(item)
+        : item
+    );
+  }
+
+  return data;
+};
+
 const API = axios.create({
   baseURL: API_URL,
 });
@@ -24,7 +122,12 @@ API.interceptors.request.use(
 
 // Response interceptor to handle token expiry / unauthenticated requests
 API.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data) {
+      response.data = normalizeResourcesPayload(response.data);
+    }
+    return response;
+  },
   (error) => {
     if (error.response && error.response.status === 401) {
       // Clear local storage and redirect to login if unauthenticated on a private route

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { X, CheckCircle2, Bookmark, Star, Download, ExternalLink, Github, Eye, Sparkles, FolderSync, ShieldAlert } from 'lucide-react';
-import { resourceService, SERVER_URL } from '../services/api';
+import { resourceService, resolveResourceUrl } from '../services/api';
 
 const PreviewModal = ({ resource: initialResource, onClose }) => {
   const { user, toggleBookmark, bookmarks } = useAuth();
@@ -89,10 +89,7 @@ const PreviewModal = ({ resource: initialResource, onClose }) => {
       await resourceService.downloadResource(resource._id);
       
       // Get the correct URL path
-      let link = resource.fileUrl;
-      if (link && link.startsWith('/uploads/')) {
-        link = `${SERVER_URL}${link}`;
-      }
+      let link = resolveResourceUrl(resource.fileUrl);
       window.open(link, '_blank');
       
       // Update local download count
@@ -123,11 +120,7 @@ const PreviewModal = ({ resource: initialResource, onClose }) => {
       return 'https://www.youtube.com/embed/';
     }
     if (type === 'pdf') {
-      let embedPath = url;
-      if (embedPath.startsWith('/uploads/')) {
-        embedPath = `${SERVER_URL}${embedPath}`;
-      }
-      return embedPath;
+      return resolveResourceUrl(url);
     }
     return url;
   };

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle2, Download, Bookmark, FileText, Youtube, Github, ExternalLink, HardDrive, Star, AlertTriangle } from 'lucide-react';
-import { resourceService, SERVER_URL } from '../services/api';
+import { resourceService, resolveResourceUrl } from '../services/api';
 
 const ResourceCard = ({ resource, onBookmarkToggle, onReportClick, onPreviewClick }) => {
   const { user, toggleBookmark, bookmarks } = useAuth();
@@ -53,10 +53,7 @@ const ResourceCard = ({ resource, onBookmarkToggle, onReportClick, onPreviewClic
         await resourceService.downloadResource(resource._id);
         
         // Open link or file URL
-        let targetUrl = resource.fileUrl;
-        if (targetUrl && targetUrl.startsWith('/uploads/')) {
-          targetUrl = `${SERVER_URL}${targetUrl}`;
-        }
+        let targetUrl = resolveResourceUrl(resource.fileUrl);
         window.open(targetUrl, '_blank');
       } catch (err) {
         console.error('Error opening resource:', err);

@@ -9,14 +9,16 @@ const {
   downloadResource,
   reportResource,
   getRecommendations,
+  serveResourceFile,
 } = require('../controllers/resourceController');
 const { protect } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 
 // Public routes
 router.get('/', getResources);
-router.get('/:id', getResourceById);
+router.get('/:id/file', serveResourceFile);
 router.get('/:id/recommendations', getRecommendations);
+router.get('/:id', getResourceById);
 
 // Protected routes (require login)
 router.post('/check-duplicate', protect, checkDuplicate);

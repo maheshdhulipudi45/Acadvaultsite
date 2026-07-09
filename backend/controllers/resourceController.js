@@ -4,8 +4,16 @@ const Download = require('../models/Download');
 const Report = require('../models/Report');
 const Notification = require('../models/Notification');
 const { calculateFileHash } = require('../middleware/uploadMiddleware');
+const { normalizeResource, attachUploaders } = require('../utils/normalizeResource');
 const fs = require('fs');
 const path = require('path');
+
+const MIME_TYPES = {
+  pdf: 'application/pdf',
+  ppt: 'application/vnd.ms-powerpoint',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  zip: 'application/zip',
+};
 
 // Helper to update user points and badges
 const awardPoints = async (userId, pointsAwarded) => {
@@ -277,15 +285,17 @@ const getResources = async (req, res) => {
     const finalSort = { isVerified: -1, ...sortOptions };
 
     const resources = await Resource.find(query)
+      .select('-file_data')
       .populate('uploader', 'name avatarUrl points badge')
       .sort(finalSort)
       .skip(skip)
       .limit(parseInt(limit));
 
     const total = await Resource.countDocuments(query);
+    const normalizedResources = await attachUploaders(resources.map(normalizeResource));
 
     res.json({
-      resources,
+      resources: normalizedResources,
       page: parseInt(page),
       pages: Math.ceil(total / parseInt(limit)),
       total,
@@ -302,6 +312,7 @@ const getResources = async (req, res) => {
 const getResourceById = async (req, res) => {
   try {
     const resource = await Resource.findById(req.params.id)
+      .select('-file_data')
       .populate('uploader', 'name avatarUrl points badge')
       .populate('ratings.user', 'name avatarUrl');
 
@@ -309,7 +320,8 @@ const getResourceById = async (req, res) => {
       return res.status(404).json({ message: 'Resource not found' });
     }
 
-    res.json(resource);
+    const [normalizedResource] = await attachUploaders([normalizeResource(resource)]);
+    res.json(normalizedResource);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error fetching resource details' });
@@ -435,21 +447,68 @@ const getRecommendations = async (req, res) => {
     }
 
     // Recommendation logic: find resources in the same branch, semester or sharing same tags, excluding current
+    const branch = resource.branch || resource.subject || resource.category || 'General';
     const recommendations = await Resource.find({
       _id: { $ne: resource._id },
       $or: [
-        { branch: resource.branch },
+        { branch },
+        { subject: branch },
+        { category: branch },
         { semester: resource.semester },
-        { tags: { $in: resource.tags } }
+        { tags: { $in: resource.tags || [] } }
       ]
     })
+    .select('-file_data')
     .populate('uploader', 'name avatarUrl')
     .limit(4);
 
-    res.json(recommendations);
+    const normalizedRecommendations = await attachUploaders(recommendations.map(normalizeResource));
+    res.json(normalizedRecommendations);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error getting recommendations' });
+  }
+};
+
+// @desc    Serve stored resource file (legacy base64 or uploaded file)
+// @route   GET /api/resources/:id/file
+// @access  Public
+const serveResourceFile = async (req, res) => {
+  try {
+    const resource = await Resource.findById(req.params.id);
+    if (!resource) {
+      return res.status(404).json({ message: 'Resource not found' });
+    }
+
+    const resourceType = normalizeResource(resource).resourceType;
+    const fileType = (resource.file_type || resource.fileType || resourceType || 'pdf').toLowerCase();
+
+    if (resource.file_data) {
+      const buffer = Buffer.from(resource.file_data, 'base64');
+      res.setHeader('Content-Type', MIME_TYPES[fileType] || 'application/octet-stream');
+      res.setHeader(
+        'Content-Disposition',
+        `inline; filename="${(resource.title || 'resource').replace(/[^\w.-]/g, '_')}.${fileType}"`
+      );
+      return res.send(buffer);
+    }
+
+    if (resource.fileUrl && resource.fileUrl.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '..', resource.fileUrl);
+      if (fs.existsSync(filePath)) {
+        return res.sendFile(filePath);
+      }
+    }
+
+    const externalUrl = resource.linkUrl || resource.file_url || resource.fileUrl;
+    if (externalUrl && externalUrl.startsWith('http')) {
+      return res.redirect(externalUrl);
+    }
+
+    return res.status(404).json({ message: 'File not found for this resource' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error serving resource file' });
   }
 };
 
@@ -462,4 +521,5 @@ module.exports = {
   downloadResource,
   reportResource,
   getRecommendations,
+  serveResourceFile,
 };

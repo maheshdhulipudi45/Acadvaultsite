@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Slider from 'react-slick';
+import SliderModule from 'react-slick';
+
+const Slider = SliderModule.default?.default ?? SliderModule.default ?? SliderModule;
 import { useAuth } from '../context/AuthContext';
 import { resourceService, userService } from '../services/api';
 import ResourceCard from '../components/ResourceCard';
